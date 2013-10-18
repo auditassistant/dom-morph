@@ -3,6 +3,8 @@ dom-morph
 
 Smoothly animate a DOM element swap from one to another. Great for in-place editors!
 
+Uses [CSS transitions](https://github.com/mmckegg/css-transition) for the animation so currently will only work in modern browsers.
+
 ## Install
 
 [![NPM](https://nodei.co/npm/dom-morph.png?compact=true)](https://nodei.co/npm/dom-morph/)

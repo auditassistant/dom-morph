@@ -1,0 +1,32 @@
+{
+  "name": "dom-morph",
+  "version": "0.0.0",
+  "description": "Smoothly animate a DOM element swap from one to another.",
+  "main": "index.js",
+  "scripts": {
+    "example": "cd example && open http://localhost:9966 && beefy example.js -- -t brfs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mmckegg/dom-morph"
+  },
+  "keywords": [
+    "morph",
+    "animate"
+  ],
+  "dependencies": {
+    "css-transition": "*"
+  },
+  "devDependencies": {
+    "rincewind": "*",
+    "former": "*",
+    "json-query": "*",
+    "domready": "~0.2.12",
+    "brfs": "*"
+  },
+  "author": "Matt McKegg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mmckegg/dom-morph/issues"
+  }
+}

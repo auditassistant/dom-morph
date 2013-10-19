@@ -12,7 +12,9 @@
   },
   "keywords": [
     "morph",
-    "animate"
+    "animate",
+    "css",
+    "transition"
   ],
   "dependencies": {
     "css-transition": "*"

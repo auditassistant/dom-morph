@@ -45,15 +45,13 @@ function getMatch(element, to){
   var target = {} 
   var original = {}
 
-  Object.keys(fromStyle).forEach(function(key){
-    if (!isNumeric(key) && key != 'length' && key != 'cssText' && fromStyle[key] != toStyle[key]){
-      var root = key.split(/[A-Z]/)[0]
-      if (!(root in start) && root != 'webkit'){
-        start[key] = fromStyle[key]
-        end[key] = toStyle[key]
-        target[key] = to.style[key]
-        original[key] = element.style[key]
-      }
+  getStyleKeys().forEach(function(key){
+    var root = /^.[a-z]*/.exec(key)[0]
+    if (!(root in start) && root != 'webkit' && root != 'Moz' && fromStyle[key] != toStyle[key]){
+      start[key] = fromStyle[key]
+      end[key] = toStyle[key]
+      target[key] = to.style[key]
+      original[key] = element.style[key]
     }
   })
 
@@ -117,6 +115,20 @@ function getAutoHeight(element){
 
 function isNumeric(text){
   return /^[0-9]+$/.test(text)
+}
+
+var cachedStyleKeys = null
+function getStyleKeys(){
+  if (!cachedStyleKeys){
+    var cachedStyleKeys = []
+    var styles = window.getComputedStyle(document.body)
+    for (var key in styles){
+      if (key in styles && !isNumeric(key) && key != 'length' && key != 'cssText'){
+        cachedStyleKeys.push(key)
+      }
+    }
+  }
+  return cachedStyleKeys
 }
 
 function mergeClone(){

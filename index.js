@@ -14,7 +14,6 @@ module.exports = function(element, to, time, cb){
   var match = getMatch(element, to)
   set(to, match.start)
 
-
   transition(element, match.fromMatch, time)
   transition(to, match.end, time, function(){
     element.parentNode.insertBefore(to, element)
@@ -24,8 +23,8 @@ module.exports = function(element, to, time, cb){
   })
 
   return function unmorph (cb){
-    set(to, match.end)
     set(element, match.fromMatch)
+    set(to, match.end)
     transition(element, match.original, time)
     transition(to, match.start, time, function(){
       to.parentNode.removeChild(to)
@@ -56,7 +55,8 @@ function getMatch(element, to){
   })
 
   fromMatch = mergeClone(end, {
-    opacity: '0'
+    opacity: '0',
+    display: fromStyle['display']
   })
 
   start['opacity'] = '0'
@@ -64,6 +64,30 @@ function getMatch(element, to){
 
   original['display'] = fromStyle['display']
   original['opacity'] = fromStyle['opacity']
+
+  var fromPos = fromStyle['position']
+  var toPos = toStyle['position']
+
+  if ((fromPos == 'static' || fromPos == 'relative') && (toPos == 'static' || toPos == 'relative')){
+    start['position'] = end['position'] = 'absolute'
+    start['top'] = element.offsetTop + 'px'
+    start['left'] = element.offsetLeft + 'px'
+    start['width'] = fromStyle['width']
+    start['height'] = fromStyle['height']
+    start['margin'] = ''
+
+    fromMatch['position'] = fromStyle['position']
+
+    set(element, fromMatch)
+    end['top'] = element.offsetTop - parsePx(toStyle['margin-top']) + 'px'
+    end['left'] = element.offsetLeft - parsePx(toStyle['margin-left']) + 'px'
+    set(element, original)
+
+    target['top'] = toStyle['top']
+    target['left'] = toStyle['left']
+
+    target['position'] = null
+  }
 
   var autoHeight = getAutoHeight(element)
   if (fromStyle.height == autoHeight){
@@ -73,21 +97,6 @@ function getMatch(element, to){
   var autoHeight = getAutoHeight(to)
   if (toStyle.height == autoHeight){
     to['height'] = 'auto'
-  }
-
-  if (fromStyle['position'] == 'static' && toStyle['position'] == 'static'){
-    start['position'] = end['position'] = 'absolute'
-    start['top'] = element.offsetTop + 'px'
-    start['left'] = element.offsetLeft + 'px'
-    start['margin'] = ''
-
-    set(element, fromMatch)
-    end['margin'] = ''
-    end['top'] = element.offsetTop + 'px'
-    end['left'] = element.offsetLeft + 'px'
-    set(element, original)
-
-    target['position'] = null
   }
 
   return {
@@ -111,6 +120,10 @@ function getAutoHeight(element){
   var value = window.getComputedStyle(element).height
   element.style.height = revert
   return value
+}
+
+function parsePx(px){
+  return parseInt(px, 10)
 }
 
 function isNumeric(text){

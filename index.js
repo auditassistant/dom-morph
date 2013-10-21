@@ -79,8 +79,8 @@ function getMatch(element, to){
     fromMatch['position'] = fromStyle['position']
 
     set(element, fromMatch)
-    end['top'] = element.offsetTop - parsePx(toStyle['margin-top']) + 'px'
-    end['left'] = element.offsetLeft - parsePx(toStyle['margin-left']) + 'px'
+    end['top'] = element.offsetTop - parsePx(toStyle['marginTop']) + 'px'
+    end['left'] = element.offsetLeft - parsePx(toStyle['marginLeft']) + 'px'
     set(element, original)
 
     target['top'] = toStyle['top']
@@ -123,7 +123,7 @@ function getAutoHeight(element){
 }
 
 function parsePx(px){
-  return parseInt(px, 10)
+  return parseInt(px, 10) || 0
 }
 
 function isNumeric(text){

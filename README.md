@@ -37,7 +37,7 @@ window.edit = function(){
   saveButton.textContent = 'Save'
   saveButton.onclick = function(){
     document.getElementById('title').textContent = nameInput.value
-    document.getElementById('title').textContent = nameInput.value
+    document.getElementById('body').textContent = bodyTextArea.value
     unmorph() // reverts to original element and removes new element
   }
   editor.appendChild(saveButton)

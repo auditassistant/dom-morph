@@ -189,6 +189,7 @@ function scrollFit(match, time, cushion, reverse){
   var view = {
     height: window.innerHeight || document.documentElement.clientHeight,
     width: window.innerWidth || document.documentElement.clientWidth,
+    scrollHeight: document.documentElement.scrollHeight,
     scrollX: document.documentElement.scrollLeft || document.body.scrollLeft,
     scrollY: document.documentElement.scrollTop || document.body.scrollTop 
   }
@@ -199,28 +200,39 @@ function scrollFit(match, time, cushion, reverse){
     left: parseInt(match.start['left']) - cushion,
     right: parseInt(match.start['left']) + match.startWidth + cushion,
     width: match.startWidth,
-    height: match.startHeight
+    height: match.startHeight,
+    differenceX: match.startWidth - match.endWidth,
+    differenceY: match.startHeight - match.endHeight
   } : {
     top: parseInt(match.end['top']) - cushion,
     bottom: parseInt(match.end['top']) + match.endHeight + cushion,
     left: parseInt(match.end['left']) - cushion,
     right: parseInt(match.end['left']) + match.endWidth + cushion,
     width: match.endWidth,
-    height: match.endHeight
+    height: match.endHeight,
+    differenceX: match.startWidth - match.endWidth,
+    differenceY: match.startHeight - match.endHeight
   }
+
+  var newWidth = view.scrollHeight + rect.differenceX
+  var newHeight = view.scrollHeight + rect.differenceY
 
   var offset = [0,0]
-  if (rect.left - view.scrollX < 0 || rect.width > view.width){
-    offset[0] = rect.top - view.scrollX
-  } else if (rect.right - view.scrollX > view.width){
-    offset[0] = rect.right - view.scrollX - view.width
+  if (newWidth > view.width){
+    if (rect.left - view.scrollX < 0 || rect.width > view.width){
+      offset[0] = rect.top - view.scrolvlX
+    } else if (rect.right - view.scrollX > view.width){
+      offset[0] = rect.right - view.scrollX - view.width
+    }
   }
 
-  if (rect.top - view.scrollY < 0 || rect.height > view.height){
-    offset[1] = rect.top - view.scrollY
-  } else if (rect.bottom - view.scrollY > view.height){
-    offset[1] = rect.bottom - view.scrollY - view.height
-  }
+  if (newHeight > view.height){
+    if (rect.top - view.scrollY < 0 || rect.height > view.height){
+      offset[1] = rect.top - view.scrollY
+    } else if (rect.bottom - view.scrollY > view.height){
+      offset[1] = rect.bottom - view.scrollY - view.height
+    }
+  } 
 
   scrollBy(offset, time)
 }

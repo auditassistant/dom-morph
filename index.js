@@ -1,25 +1,25 @@
 var transition = require('css-transition')
 var scrollBy = require('css-scroll-by')
 
-module.exports = function(element, to, optionsOrTime, cb){
-  // options: time, 
+module.exports = function(element, to, optionsOrDuration, cb){
+  // options: duration, 
 
-  if (!cb && typeof optionsOrTime == 'function'){
-    cb = optionsOrTime
-    optionsOrTime = null
+  if (!cb && typeof optionsOrDuration == 'function'){
+    cb = optionsOrDuration
+    optionsOrDuration = null
   }
 
   var options = null
 
-  if (typeof optionsOrTime === 'number'){
-    options = {time: optionsOrTime}
+  if (typeof optionsOrDuration === 'number'){
+    options = {duration: optionsOrDuration}
   } else {
-    options = optionsOrTime || {}
+    options = optionsOrDuration || {}
   }
 
   var scroll = getScroll()
 
-  options.time = options.time || 400
+  options.duration = options.duration || 400
 
   element.parentNode.appendChild(to)
 
@@ -27,11 +27,11 @@ module.exports = function(element, to, optionsOrTime, cb){
   set(to, match.start)
 
   if (options.fit){
-    scrollFit(match, options.time, getNumber(options.fit, 0))
+    scrollFit(match, options.duration, getNumber(options.fit, 0))
   }
 
-  transition(element, match.fromMatch, options.time)
-  transition(to, match.end, options.time, function(){
+  transition(element, match.fromMatch, options.duration)
+  transition(to, match.end, options.duration, function(){
     element.parentNode.insertBefore(to, element)
     set(to, match.target)
     set(element, match.original)
@@ -53,8 +53,8 @@ module.exports = function(element, to, optionsOrTime, cb){
     set(element, match.fromMatch)
     set(to, match.end)
 
-    transition(element, match.original, opts.time)
-    transition(to, match.start, opts.time, function(){
+    transition(element, match.original, opts.duration)
+    transition(to, match.start, opts.duration, function(){
       var scroll = getScroll()
       to.parentNode.removeChild(to)
       set(to, match.target)
@@ -64,7 +64,7 @@ module.exports = function(element, to, optionsOrTime, cb){
     setScroll(scroll) 
 
     if (opts.fit){
-      scrollFit(match, opts.time, getNumber(opts.fit, 0), true)
+      scrollFit(match, opts.duration, getNumber(opts.fit, 0), true)
     }
   }
 
@@ -184,7 +184,7 @@ function getNumber(value, def){
   return typeof value === 'number' ? value : def
 }
 
-function scrollFit(match, time, cushion, reverse){
+function scrollFit(match, duration, cushion, reverse){
   var cushion = cushion || 0
   var view = {
     height: window.innerHeight || document.documentElement.clientHeight,
@@ -235,7 +235,7 @@ function scrollFit(match, time, cushion, reverse){
     }
   } 
 
-  scrollBy(offset, time)
+  scrollBy(offset, duration)
 }
 
 function setScroll(scroll){

@@ -1,13 +1,29 @@
 dom-morph
 ===
 
-Smoothly animate a DOM element swap from one to another. Great for in-place editors!
+Smoothly animate a DOM element swap from one to another. Great for [in-place editors](https://github.com/mmckegg/former)!
 
 Uses [CSS transitions](https://github.com/mmckegg/css-transition) for the animation so currently will only work in modern browsers.
 
-## Install
-
 [![NPM](https://nodei.co/npm/dom-morph.png?compact=true)](https://nodei.co/npm/dom-morph/)
+
+## API
+
+```js
+var morph = require('dom-morph')
+```
+
+### `morph(from, to, optionsOrDuration, cb)`
+
+Smoothly replace `from` element with `to` element. Returns `unmorph` function to reverts the change when called.
+
+**options:**
+- `duration`: in milliseconds how long the morph animation should take to complete
+- `fit` (default `false`): When true, will scroll the window to ensure as much of the new element is visible. Specify a number to add a cushion of pixels around the edge of the element that also must be visible
+
+### `unmorph(optionsOrDuration, cb)
+
+Returned by `morph`. Smoothly reverts back to original state.
 
 ## Example
 
@@ -48,4 +64,9 @@ window.edit = function(){
 }
 ```
 
-Run `npm run example` and navigate to `http://localhost:9966` to see it in action.
+### Run the example
+
+```bash
+$ npm install beefy -g
+$ npm run example
+```

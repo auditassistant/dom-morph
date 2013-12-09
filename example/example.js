@@ -37,7 +37,7 @@ ready(function(){
 })
 
 function refresh(){
-  become(document.body, renderView(handleQuery))
+  become(document.body.childNodes, renderView(handleQuery))
 }
 
 function edit(){
@@ -53,5 +53,5 @@ function edit(){
     unmorph()
   })
 
-  var unmorph = morph(element, editor)
+  var unmorph = morph(element, editor, {fit: true})
 }

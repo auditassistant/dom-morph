@@ -17,10 +17,11 @@
     "transition"
   ],
   "dependencies": {
-    "css-transition": "*"
+    "css-transition": "~0.0",
+    "css-scroll-by": "~0.0"
   },
   "devDependencies": {
-    "rincewind": "*",
+    "rincewind": "~0.1.0",
     "former": "*",
     "json-query": "*",
     "domready": "~0.2.12",

@@ -190,6 +190,7 @@ function scrollFit(match, time, cushion, reverse){
     height: window.innerHeight || document.documentElement.clientHeight,
     width: window.innerWidth || document.documentElement.clientWidth,
     scrollHeight: document.documentElement.scrollHeight,
+    scrollWidth: document.documentElement.scrollWidth,
     scrollX: document.documentElement.scrollLeft || document.body.scrollLeft,
     scrollY: document.documentElement.scrollTop || document.body.scrollTop 
   }
@@ -210,11 +211,11 @@ function scrollFit(match, time, cushion, reverse){
     right: parseInt(match.end['left']) + match.endWidth + cushion,
     width: match.endWidth,
     height: match.endHeight,
-    differenceX: match.startWidth - match.endWidth,
-    differenceY: match.startHeight - match.endHeight
+    differenceX: match.endWidth - match.startWidth,
+    differenceY: match.endHeight - match.startHeight
   }
 
-  var newWidth = view.scrollHeight + rect.differenceX
+  var newWidth = view.scrollWidth + rect.differenceX
   var newHeight = view.scrollHeight + rect.differenceY
 
   var offset = [0,0]

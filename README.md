@@ -13,15 +13,17 @@ Uses [CSS transitions](https://github.com/mmckegg/css-transition) for the animat
 var morph = require('dom-morph')
 ```
 
-### `morph(from, to, optionsOrDuration, cb)`
+### morph(`from`, `to`, `optionsOrDuration`, `cb`)
 
 Smoothly replace `from` element with `to` element. Returns `unmorph` function to reverts the change when called.
 
-**options:**
+**`options`:**
 - `duration`: in milliseconds how long the morph animation should take to complete
 - `fit` (default `false`): When true, will scroll the window to ensure as much of the new element is visible. Specify a number to add a cushion of pixels around the edge of the element that also must be visible
 
-### `unmorph(optionsOrDuration, cb)
+`cb` will be called when animation completes.
+
+### unmorph(`optionsOrDuration`, `cb`)
 
 Returned by `morph`. Smoothly reverts back to original state.
 

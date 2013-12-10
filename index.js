@@ -1,5 +1,6 @@
 var transition = require('css-transition')
-var scrollBy = require('css-scroll-by')
+var getMatch = require('./lib/get-match')
+var scrollFit = require('./lib/scroll-fit')
 
 module.exports = function(element, to, optionsOrDuration, cb){
   // options: duration, 
@@ -9,36 +10,38 @@ module.exports = function(element, to, optionsOrDuration, cb){
     optionsOrDuration = null
   }
 
-  var options = null
-
-  if (typeof optionsOrDuration === 'number'){
-    options = {duration: optionsOrDuration}
-  } else {
-    options = optionsOrDuration || {}
-  }
-
-  var scroll = getScroll()
+  var options = typeof optionsOrDuration === 'number' ? 
+    {duration: optionsOrDuration} : optionsOrDuration || {}
 
   options.duration = options.duration || 400
 
-  element.parentNode.appendChild(to)
+
+  var scroll = getScroll()
+
+  if (!to.parentNode){
+    element.parentNode.appendChild(to)
+  }
 
   var match = getMatch(element, to)
   set(to, match.start)
+
+  transition(element, match.fromMatch, options.duration)
+  transition(to, match.end, options.duration, function(){
+    var selection = getSelection()
+    element.parentNode.insertBefore(to, element)
+    set(to, match.target)
+    set(element, match.original)
+    element.style.display = 'none'
+    setSelection(selection)
+    cb&&cb()
+  })
+
+  setScroll(scroll)
 
   if (options.fit){
     scrollFit(match, options.duration, getNumber(options.fit, 0))
   }
 
-  transition(element, match.fromMatch, options.duration)
-  transition(to, match.end, options.duration, function(){
-    element.parentNode.insertBefore(to, element)
-    set(to, match.target)
-    set(element, match.original)
-    element.style.display = 'none'
-  })
-
-  setScroll(scroll)
 
   return function unmorph (opts, cb){
 
@@ -49,6 +52,7 @@ module.exports = function(element, to, optionsOrDuration, cb){
       opts = null
     }
     opts = opts || options
+    opts.duration = opts.duration || 400
 
     set(element, match.fromMatch)
     set(to, match.end)
@@ -59,6 +63,7 @@ module.exports = function(element, to, optionsOrDuration, cb){
       to.parentNode.removeChild(to)
       set(to, match.target)
       setScroll(scroll)
+      cb&&cb()
     })
 
     setScroll(scroll) 
@@ -70,172 +75,97 @@ module.exports = function(element, to, optionsOrDuration, cb){
 
 }
 
-function getMatch(element, to){
-  var fromStyle = window.getComputedStyle(element)
-  var toStyle = window.getComputedStyle(to)
+module.exports.after = function(after, element, optionsOrDuration, cb){
 
-  var start = {}
-  var end = {}
-  var target = {} 
-  var original = {}
+  if (!cb && typeof optionsOrDuration == 'function'){
+    cb = optionsOrDuration
+    optionsOrDuration = null
+  }
 
-  getStyleKeys().forEach(function(key){
-    var root = /^.[a-z]*/.exec(key)[0]
-    if (!(root in start) && root != 'transition' && root != 'overflow' && root != 'webkit' && root != 'Moz' && fromStyle[key] != toStyle[key]){
-      start[key] = fromStyle[key]
-      end[key] = toStyle[key]
-      target[key] = to.style[key]
-      original[key] = element.style[key]
-    }
+  var options = typeof optionsOrDuration === 'number' ? 
+    {duration: optionsOrDuration} : optionsOrDuration || {}
+  
+  options.duration = options.duration || 400
+
+  var scroll = getScroll()
+
+  insertAfter(element, after)
+  var match = getMatch.append(after, element)
+
+  set(element, match.start)
+  transition(element, match.end, options.duration, function(){
+    set(element, match.target)
+    cb&&cb()
   })
 
-  fromMatch = mergeClone(end, {
-    opacity: '0',
-    display: fromStyle['display']
-  })
+  setScroll(scroll)
 
-  start['opacity'] = '0'
-  end['opacity'] = '1'
-
-  original['display'] = fromStyle['display']
-  original['opacity'] = fromStyle['opacity']
-
-  var fromPos = fromStyle['position']
-  var toPos = toStyle['position']
-
-  if ((fromPos == 'static' || fromPos == 'relative') && (toPos == 'static' || toPos == 'relative')){
-    start['position'] = end['position'] = 'absolute'
-    start['top'] = element.offsetTop + 'px'
-    start['left'] = element.offsetLeft + 'px'
-    start['width'] = fromStyle['width']
-    start['height'] = fromStyle['height']
-    start['margin'] = ''
-
-    fromMatch['position'] = fromStyle['position']
-
-    set(element, fromMatch)
-    end['top'] = element.offsetTop - parsePx(toStyle['marginTop']) + 'px'
-    end['left'] = element.offsetLeft - parsePx(toStyle['marginLeft']) + 'px'
-    set(element, original)
-
-    target['top'] = toStyle['top']
-    target['left'] = toStyle['left']
-
-    target['position'] = null
+  if (options.fit){
+    scrollFit(match, options.duration, getNumber(options.fit, 0))
   }
 
-  var startRect = element.getBoundingClientRect()
-  var endRect = to.getBoundingClientRect()
+  return function unmorph(opts, cb){
 
-  var autoHeight = getAutoHeight(element)
-  if (fromStyle.height == autoHeight){
-    original['height'] = 'auto'
-  }
+    if (!cb && typeof opts === 'function'){
+      cb = opts
+      opts = null
+    }
+    opts = opts || options
+    opts.duration = opts.duration || 400
 
-  var autoHeight = getAutoHeight(to)
-  if (toStyle.height == autoHeight){
-    to['height'] = 'auto'
-  }
+    var scroll = getScroll()
 
-  return {
-    start: start,
-    end: end,
-    fromMatch: fromMatch,
-    target: target,
-    original: original,
-    startHeight: startRect.bottom - startRect.top,
-    startWidth: startRect.right - startRect.left,
-    endHeight: endRect.bottom - endRect.top,
-    endWidth: endRect.right - endRect.left
-  }
-}
+    transition(element, match.start, opts.duration, function(){
+      element.parentNode.removeChild(element)
+      cb&&cb()
+    })
 
-function getAutoHeight(element){
-  var revert = element.style.height
-  element.style.height = 'auto'
-  var value = window.getComputedStyle(element).height
-  element.style.height = revert
-  return value
-}
+    setScroll(scroll)
 
-function parsePx(px){
-  return parseInt(px, 10) || 0
-}
-
-function isNumeric(text){
-  return /^[0-9]+$/.test(text)
-}
-
-var cachedStyleKeys = null
-function getStyleKeys(){
-  if (!cachedStyleKeys){
-    var cachedStyleKeys = []
-    var styles = window.getComputedStyle(document.body)
-    for (var key in styles){
-      if (key in styles && !isNumeric(key) && key != 'length' && key != 'cssText'){
-        cachedStyleKeys.push(key)
-      }
+    if (opts.fit){
+      scrollFit(match, opts.duration, getNumber(opts.fit, 0), true)
     }
   }
-  return cachedStyleKeys
+
+}
+
+module.exports.remove = function(element, optionsOrDuration, cb){
+  if (!cb && typeof optionsOrDuration == 'function'){
+    cb = optionsOrDuration
+    optionsOrDuration = null
+  }
+
+  var options = typeof optionsOrDuration === 'number' ? 
+    {duration: optionsOrDuration} : optionsOrDuration || {}
+  
+  options.duration = options.duration || 400
+
+  var scroll = getScroll()
+  var match = getMatch.remove(element)
+
+  transition(element, match.end, options.duration, function(){
+    element.parentNode.removeChild(element)
+    cb&&cb()
+  })
+
+  setScroll(scroll)
+
+  if (options.fit){
+    scrollFit(match, options.duration, getNumber(options.fit, 0))
+  }
+
 }
 
 function getNumber(value, def){
   return typeof value === 'number' ? value : def
 }
 
-function scrollFit(match, duration, cushion, reverse){
-  var cushion = cushion || 0
-  var view = {
-    height: window.innerHeight || document.documentElement.clientHeight,
-    width: window.innerWidth || document.documentElement.clientWidth,
-    scrollHeight: document.documentElement.scrollHeight,
-    scrollWidth: document.documentElement.scrollWidth,
-    scrollX: document.documentElement.scrollLeft || document.body.scrollLeft,
-    scrollY: document.documentElement.scrollTop || document.body.scrollTop 
+function insertAfter(node, after){
+  if (after.nextSibling){
+    after.parentNode.insertBefore(node, after.nextSibling)
+  } else {
+    after.parentNode.appendChild(node)
   }
-
-  var rect = reverse ? {
-    top: parseInt(match.start['top']) - cushion,
-    bottom: parseInt(match.start['top']) + match.startHeight + cushion,
-    left: parseInt(match.start['left']) - cushion,
-    right: parseInt(match.start['left']) + match.startWidth + cushion,
-    width: match.startWidth,
-    height: match.startHeight,
-    differenceX: match.startWidth - match.endWidth,
-    differenceY: match.startHeight - match.endHeight
-  } : {
-    top: parseInt(match.end['top']) - cushion,
-    bottom: parseInt(match.end['top']) + match.endHeight + cushion,
-    left: parseInt(match.end['left']) - cushion,
-    right: parseInt(match.end['left']) + match.endWidth + cushion,
-    width: match.endWidth,
-    height: match.endHeight,
-    differenceX: match.endWidth - match.startWidth,
-    differenceY: match.endHeight - match.startHeight
-  }
-
-  var newWidth = view.scrollWidth + rect.differenceX
-  var newHeight = view.scrollHeight + rect.differenceY
-
-  var offset = [0,0]
-  if (newWidth > view.width){
-    if (rect.left - view.scrollX < 0 || rect.width > view.width){
-      offset[0] = rect.top - view.scrolvlX
-    } else if (rect.right - view.scrollX > view.width){
-      offset[0] = rect.right - view.scrollX - view.width
-    }
-  }
-
-  if (newHeight > view.height){
-    if (rect.top - view.scrollY < 0 || rect.height > view.height){
-      offset[1] = rect.top - view.scrollY
-    } else if (rect.bottom - view.scrollY > view.height){
-      offset[1] = rect.bottom - view.scrollY - view.height
-    }
-  } 
-
-  scrollBy(offset, duration)
 }
 
 function setScroll(scroll){
@@ -252,21 +182,29 @@ function getScroll(){
   ]
 }
 
+function getSelection(){
+  if (document.activeElement){
+    var element = document.activeElement
+    return {
+      element: element,
+      selectionStart: element.selectionStart,
+      selectionEnd: element.selectionEnd,
+      selectionDirection: element.selectionDirection,
+    }
+  }
+}
+
+function setSelection(selection){
+  if (selection && selection.element != document.activeElement && selection.element.focus){
+    selection.element.focus()
+    selection.element.selectionStart = selection.selectionStart
+    selection.element.selectionEnd = selection.selectionEnd
+    selection.element.selectionDirection = selection.selectionDirection
+  }
+}
+
 function set(element, attributes){
   Object.keys(attributes).forEach(function(key){
     element.style[key] = attributes[key]
   })
-}
-
-function mergeClone(){
-  var result = {}
-  for (var i=0;i<arguments.length;i++){
-    var obj = arguments[i]
-    if (obj){
-      Object.keys(obj).forEach(function(key){
-        result[key] = obj[key]
-      })
-    }
-  }
-  return result
 }

@@ -27,6 +27,14 @@ Smoothly replace `from` element with `to` element. Returns `unmorph` function to
 
 Returned by `morph`. Smoothly reverts back to original state.
 
+### morph.after(`after`, `element`, `optionsOrDuration`, `cb`)
+
+`element` is smoothly inserted after the element `after`. Returns `unmorph` function to revert.
+
+### morph.remove(`element`, `optionsOrDuration`, `cb`)
+
+`element` is smoothly removed from DOM. 
+
 ## Example
 
 ```html

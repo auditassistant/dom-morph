@@ -1,6 +1,6 @@
 {
   "name": "dom-morph",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Smoothly animate a DOM element swap from one to another.",
   "main": "index.js",
   "scripts": {

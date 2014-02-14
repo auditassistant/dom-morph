@@ -205,6 +205,6 @@ function setSelection(selection){
 
 function set(element, attributes){
   Object.keys(attributes).forEach(function(key){
-    element.style[key] = attributes[key]
+    element.style[key] = attributes[key] || ''
   })
 }

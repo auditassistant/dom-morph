@@ -5,6 +5,20 @@ var scrollFit = require('./lib/scroll-fit')
 module.exports = function(element, to, optionsOrDuration, cb){
   // options: duration, 
 
+  // fallback
+  if (!window.getComputedStyle){
+    
+    var originalDisplay = element.style.display
+    element.parentNode.insertBefore(to, element)
+    element.style.display = 'none'
+
+    return function(){
+      to.parentNode.removeChild(to)
+      element.style.display = originalDisplay
+    }
+  }
+
+
   if (!cb && typeof optionsOrDuration == 'function'){
     cb = optionsOrDuration
     optionsOrDuration = null
@@ -77,6 +91,14 @@ module.exports = function(element, to, optionsOrDuration, cb){
 
 module.exports.after = function(after, element, optionsOrDuration, cb){
 
+  // fallback
+  if (!window.getComputedStyle){
+    insertAfter(element, after)
+    return function(){
+      element.parentNode.removeChild(element)
+    }
+  }
+
   if (!cb && typeof optionsOrDuration == 'function'){
     cb = optionsOrDuration
     optionsOrDuration = null
@@ -135,6 +157,12 @@ module.exports.remove = function(element, optionsOrDuration, cb){
     optionsOrDuration = null
   }
 
+  // fallback
+  if (!window.getComputedStyle){
+    element.parentNode.removeChild(element)
+    return
+  }
+
   var options = typeof optionsOrDuration === 'number' ? 
     {duration: optionsOrDuration} : optionsOrDuration || {}
   
@@ -189,7 +217,7 @@ function getSelection(){
       element: element,
       selectionStart: element.selectionStart,
       selectionEnd: element.selectionEnd,
-      selectionDirection: element.selectionDirection,
+      selectionDirection: element.selectionDirection
     }
   }
 }

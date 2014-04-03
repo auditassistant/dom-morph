@@ -213,11 +213,18 @@ function getScroll(){
 function getSelection(){
   if (document.activeElement){
     var element = document.activeElement
-    return {
-      element: element,
-      selectionStart: element.selectionStart,
-      selectionEnd: element.selectionEnd,
-      selectionDirection: element.selectionDirection
+    try {
+      return {
+        element: element,
+        selectionStart: element.selectionStart,
+        selectionEnd: element.selectionEnd,
+        selectionDirection: element.selectionDirection
+      }
+    } catch (ex) {
+      // selection unsupported
+      return {
+        element: element
+      }
     }
   }
 }
@@ -225,9 +232,13 @@ function getSelection(){
 function setSelection(selection){
   if (selection && selection.element != document.activeElement && selection.element.focus){
     selection.element.focus()
-    selection.element.selectionStart = selection.selectionStart
-    selection.element.selectionEnd = selection.selectionEnd
-    selection.element.selectionDirection = selection.selectionDirection
+    try{
+      selection.element.selectionStart = selection.selectionStart
+      selection.element.selectionEnd = selection.selectionEnd
+      selection.element.selectionDirection = selection.selectionDirection
+    } catch (ex) {
+      // unsupported
+    }
   }
 }
 

@@ -18,7 +18,7 @@
   ],
   "dependencies": {
     "css-transition": "~0.0",
-    "css-scroll-by": "~0.0"
+    "css-scroll-by": "~0.1"
   },
   "devDependencies": {
     "rincewind": "~0.1.0",

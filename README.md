@@ -20,6 +20,7 @@ Smoothly replace `from` element with `to` element. Returns `unmorph` function to
 **`options`:**
 - `duration`: in milliseconds how long the morph animation should take to complete
 - `fit` (default `false`): When true, will scroll the window to ensure as much of the new element is visible. Specify a number to add a cushion of pixels around the edge of the element that also must be visible
+- `animate`: when false disables the animation and transitions in a single step
 
 `cb` will be called when animation completes.
 

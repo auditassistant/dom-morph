@@ -3,10 +3,18 @@ var getMatch = require('./lib/get-match')
 var scrollFit = require('./lib/scroll-fit')
 
 module.exports = function(element, to, optionsOrDuration, cb){
-  // options: duration, 
+  // options: duration, animate
+
+  if (!cb && typeof optionsOrDuration == 'function'){
+    cb = optionsOrDuration
+    optionsOrDuration = null
+  }
+
+  var options = typeof optionsOrDuration === 'number' ? 
+    {duration: optionsOrDuration} : optionsOrDuration || {}
 
   // fallback
-  if (!window.getComputedStyle){
+  if (!window.getComputedStyle || options.animate === false){
     
     var originalDisplay = element.style.display
     element.parentNode.insertBefore(to, element)
@@ -19,13 +27,6 @@ module.exports = function(element, to, optionsOrDuration, cb){
   }
 
 
-  if (!cb && typeof optionsOrDuration == 'function'){
-    cb = optionsOrDuration
-    optionsOrDuration = null
-  }
-
-  var options = typeof optionsOrDuration === 'number' ? 
-    {duration: optionsOrDuration} : optionsOrDuration || {}
 
   options.duration = options.duration || 400
 
